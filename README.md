@@ -1,12 +1,12 @@
 # web-to-app
 converting a website into app
 //Main activity
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivitywe {
 
     String websiteURL = "https://viskill.in/";
 
     private WebView webview;
-
+    SwipeRefreshLayout mySwipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +42,17 @@ public class MainActivity extends AppCompatActivity {
             webview.setWebViewClient(new WebViewClientDemo());
 
         }
+        //Swipe to refresh functionality
+        mySwipeRefreshLayout = (SwipeRefreshLayout)this.findViewById(R.id.swipeContainer);
+
+        mySwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        webview.reload();
+                    }
+                }
+        );
     }
 
 
@@ -52,8 +63,34 @@ public class MainActivity extends AppCompatActivity {
             view.loadUrl(url);
             return true;
         }
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            mySwipeRefreshLayout.setRefreshing(false);
+        }
     }
 
+    //set back button functionality
+    @Override
+  public void onBackPressed() {
+        super.onBackPressed();
+        if (webview.isFocused() && webview.canGoBack()) {
+            webview.goBack();
+        } else {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("EXIT")
+                    .setMessage("Are you sure. You want to close this app?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        }
+    }
 
 }
 
